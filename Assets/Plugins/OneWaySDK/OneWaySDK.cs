@@ -136,26 +136,46 @@ public class OneWaySDK : MonoBehaviour
 	#endregion
 
 	void onOneWaySDKReady (string placementID) {
-		 onOneWaySDKReadyEvent (placementID);
+		try{
+			onOneWaySDKReadyEvent (placementID);
+		}catch(Exception e){
+			print("-------------- OneWaySDK Warning : Method 'onOneWaySDKReadyEvent ' not implemented --------------");
+		}
 	}
 
 	void onOneWaySDKDidStart (string placementID) {
-		 onOneWaySDKDidStartEvent (placementID);
+		try{
+			onOneWaySDKDidStartEvent (placementID);
+		}catch(Exception e){
+			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidStartEvent ' not implemented --------------");
+		}
+		 
+	
 	}
 
 	void onOneWaySDKDidFinish (string msg) {
 
 		Dictionary<string,object> attrs = (Dictionary<string,object>) MiniJSONV.Json.Deserialize( msg );
 
-		onOneWaySDKDidFinishEvent (attrs["placementId"].ToString(),attrs["state"].ToString());
+		try{
+			onOneWaySDKDidFinishEvent (attrs["placementId"].ToString(),attrs["state"].ToString());
+		}catch(Exception e){
+			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidFinishEvent ' not implemented --------------");
+		}
+
+
 	}
 
 	void onOneWaySDKDidError (string msg) {
 
 		Dictionary<string,object> attrs = (Dictionary<string,object>) MiniJSONV.Json.Deserialize( msg );
 
-		onOneWaySDKDidErrorEvent (attrs["error"].ToString(),attrs["message"].ToString());
 
+		try{
+			onOneWaySDKDidErrorEvent (attrs["error"].ToString(),attrs["message"].ToString());
+		}catch(Exception e){
+			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidErrorEvent ' not implemented --------------");
+		}
 	}
 
 
