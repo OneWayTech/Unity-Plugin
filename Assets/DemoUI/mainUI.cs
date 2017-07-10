@@ -15,7 +15,7 @@ public class mainUI : MonoBehaviour {
 		Button initBtn = btnObj.GetComponent<Button>();
 
 		initBtn.onClick.AddListener(delegate() {
-			OneWaySDK.init ("yd9npds4pfb0qufi", "yd9npds4pfb0qufi", false);
+			OneWaySDK.init ("yd9npds4pfb0qufi", "k0tl9yuqpx6p31v2", false);
 		});
 
 
