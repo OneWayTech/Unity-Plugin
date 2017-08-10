@@ -14,8 +14,24 @@ public class mainUI : MonoBehaviour {
 
 		Button initBtn = btnObj.GetComponent<Button>();
 
+
+	
+
+
+
+
 		initBtn.onClick.AddListener(delegate() {
+
+
+			Dictionary<string, string> metaData = new Dictionary<string, string>();
+			metaData.Add("Name", "alice");
+			metaData.Add("gameId", "12340");
+			metaData.Add("level", "23");
+		
+			OneWaySDK.commitMetaData (metaData);
+
 			OneWaySDK.init ("yd9npds4pfb0qufi", "k0tl9yuqpx6p31v2", false);
+
 		});
 
 

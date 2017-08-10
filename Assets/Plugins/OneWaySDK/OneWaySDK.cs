@@ -232,4 +232,22 @@ public class OneWaySDK : MonoBehaviour
 		#endif
 	}
 
+	//MetaData
+	[DllImport ("__Internal")]
+	private static extern void _commitMetaData(string metaData);
+	public static void commitMetaData(Dictionary<string,string> metaData )
+	{
+		string data = MiniJSONV.Json.Serialize(metaData);
+
+
+		#if UNITY_IPHONE
+		_commitMetaData(data);
+		#elif UNITY_ANDROID
+		_plugin.Call("commitMetaData",data);
+		#endif
+	}
+		
+
 }
+
+

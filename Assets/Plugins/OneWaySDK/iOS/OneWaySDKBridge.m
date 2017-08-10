@@ -2,8 +2,7 @@
 
 static OneWaySDKBridge *_OneWaySDKBridgeSingleton;
 
-void _OneWaySDKInit(char *pID,bool debugMode)
-{
+void _OneWaySDKInit(char *pID,bool debugMode){
     if (_OneWaySDKBridgeSingleton == nil) {
         _OneWaySDKBridgeSingleton = [[OneWaySDKBridge alloc] init];
     }
@@ -12,8 +11,7 @@ void _OneWaySDKInit(char *pID,bool debugMode)
     [OneWaySDK initialize:pIDString delegate:_OneWaySDKBridgeSingleton testMode:debugMode];
 }
 
-void _OneWaySDKShowPlacementID(char *PlacementId)
-{
+void _OneWaySDKShowPlacementID(char *PlacementId){
     NSString *Placement = [NSString stringWithUTF8String:PlacementId];
     
     if ([OneWaySDK isReady:Placement]) {
@@ -22,17 +20,35 @@ void _OneWaySDKShowPlacementID(char *PlacementId)
 }
 
 
-void _OneWaySDKShow(void)
-{
+void _OneWaySDKShow(void){
     [OneWaySDK show:UnityGetMainWindow().rootViewController];
 }
 
-BOOL _OneWaySDKIsReady(void)
-{
+BOOL _OneWaySDKIsReady(void){
     return [OneWaySDK isReady];
 }
 
+void _commitMetaData(char *msg){
+    
+    NSData *data = [NSData dataWithBytes:msg length:strlen(msg)];
+    
+    NSError *err = nil;
+    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&err];
+    
+    if (err) {
+        NSLog( @"UnitySDK JSONObjectWithData : ERROR MetaData Type");
+        return;
+    }
+    
+    OWUserMetaData *metaData = [[OWUserMetaData alloc] init];
+    
+    [dict enumerateKeysAndObjectsUsingBlock:^(id key, id obj, BOOL *stop) {
+        [metaData set:key value:obj];
+    }];
+    
+    [metaData commit];
 
+}
 
 
 @implementation OneWaySDKBridge :NSObject
