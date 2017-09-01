@@ -50,7 +50,6 @@ public class mainUI : MonoBehaviour {
 
 		OneWaySDK.onOneWaySDKReadyEvent += ( placement ) =>{
 			Debug.Log ("OneWaySDK is Ready for placement: " + placement);
-
 			showBtn.enabled = true;
 
 		};
