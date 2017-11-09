@@ -229,6 +229,8 @@ public class OneWaySDK : MonoBehaviour
 		return _OneWaySDKIsReady();
 		#elif UNITY_ANDROID
 		return _plugin.Call<bool>("isVideoAvailable");
+		#else
+		return false;
 		#endif
 	}
 
