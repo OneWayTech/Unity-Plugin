@@ -3,8 +3,7 @@ using System.Collections;
 using System.Runtime.InteropServices;
 using System;
 using System.Collections.Generic;
-using System.Threading;
-
+using System.Threading; 
 
 public class OneWaySDK : MonoBehaviour
 {
@@ -94,20 +93,21 @@ public class OneWaySDK : MonoBehaviour
 
 		try
 		{
-			// create a new GO for our manager
-			var go = new GameObject( "OneWaySDK" );
-			go.AddComponent<OneWaySDK>();
-			DontDestroyOnLoad( go );
+			// create a new obj for our manager
+			var obj = new GameObject( "OneWaySDK" );
+			obj.AddComponent<OneWaySDK>();
+			DontDestroyOnLoad(obj);
 		}
 		catch( UnityException ) {
 			Debug.LogWarning ("It looks like you have the OneWaySDK on a GameObject in your scene. Please remove the script from your scene.");
 		}
 
+
+
 		#if UNITY_ANDROID
 
 		using( var pluginClass = new AndroidJavaClass( "mobi.oneway.OneWaySdkPlugin" ) )
 		_plugin = pluginClass.CallStatic<AndroidJavaObject>( "instance" );
-
 		#endif
 
 
@@ -123,129 +123,233 @@ public class OneWaySDK : MonoBehaviour
 
 
 	#region Events
+	//RewardedAd
+	public static event Action onRewardedAdReadyEvent;
+	public static event Action <string> onRewardedAdShowEvent;
+	public static event Action <string> onRewardedAdClickEvent;
+	public static event Action <string,string> onRewardedAdCloseEvent;
 
-	// Fired when a Vungle ad starts
-	public static event Action <string> onOneWaySDKReadyEvent;
+	//InterstitialAd
+	public static event Action onInterstitialAdReadyEvent;
+	public static event Action <string> onInterstitialAdShowEvent;
+	public static event Action <string> onInterstitialAdClickEvent;
+	public static event Action <string,string> onInterstitialAdCloseEvent;
 
-	public static event Action <string> onOneWaySDKDidStartEvent;
-
-	public static event Action <string,string> onOneWaySDKDidFinishEvent;
-
+	//error
 	public static event Action <string,string> onOneWaySDKDidErrorEvent;
 
 	#endregion
 
-	void onOneWaySDKReady (string placementID) {
+	//RewardedAd
+	//Ready
+	void onRewardedAdReady () {
 		try{
-			onOneWaySDKReadyEvent (placementID);
+			onRewardedAdReadyEvent();
 		}catch(Exception e){
-			print("-------------- OneWaySDK Warning : Method 'onOneWaySDKReadyEvent ' not implemented --------------");
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onRewardedAdReadyEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//Show
+	void onRewardedAdShow (string tag) {
+		try{
+			onRewardedAdShowEvent(tag);
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onRewardedAdShowEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//Click
+	void onRewardedAdClick (string tag) {
+		try{
+			onRewardedAdClickEvent(tag);
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onRewardedAdClickEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//close
+	void onRewardedAdClose (string info) {
+		Dictionary<string,object> attrs = (Dictionary<string,object>) MiniJSONV.Json.Deserialize(info);
+		try{
+			onRewardedAdCloseEvent(attrs["tag"].ToString(),attrs["state"].ToString());
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onRewardedAdCloseEvent' not implemented --------------\n" + e.Message);
 		}
 	}
 
-	void onOneWaySDKDidStart (string placementID) {
+
+
+	//InterstitialAd
+	//Ready
+	void onInterstitialAdReady () {
 		try{
-			onOneWaySDKDidStartEvent (placementID);
+			onInterstitialAdReadyEvent();
 		}catch(Exception e){
-			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidStartEvent ' not implemented --------------");
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onInterstitialAdReadyEvent' not implemented --------------\n" + e.Message);
 		}
-		 
-	
+	}
+	//Show
+	void onInterstitialAdShow (string tag) {
+		try{
+			onInterstitialAdShowEvent(tag);
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onInterstitialAdShowEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//Click
+	void onInterstitialAdClick (string tag) {
+		try{
+			onInterstitialAdClickEvent(tag);
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onInterstitialAdClickEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//close
+	void onInterstitialAdClose (string info) {
+		Dictionary<string,object> attrs = (Dictionary<string,object>)MiniJSONV.Json.Deserialize (info);
+		try {
+			onInterstitialAdCloseEvent (attrs["tag"].ToString (), attrs ["state"].ToString ());
+		} catch (Exception e) {
+			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onInterstitialAdCloseEvent' not implemented --------------\n" + e.Message);
+		}
 	}
 
-	void onOneWaySDKDidFinish (string msg) {
 
-		Dictionary<string,object> attrs = (Dictionary<string,object>) MiniJSONV.Json.Deserialize( msg );
-
-		try{
-			onOneWaySDKDidFinishEvent (attrs["placementId"].ToString(),attrs["state"].ToString());
-		}catch(Exception e){
-			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidFinishEvent ' not implemented --------------");
-		}
-
-
-	}
-
+	//Error 
 	void onOneWaySDKDidError (string msg) {
 
 		Dictionary<string,object> attrs = (Dictionary<string,object>) MiniJSONV.Json.Deserialize( msg );
 
-
 		try{
 			onOneWaySDKDidErrorEvent (attrs["error"].ToString(),attrs["message"].ToString());
 		}catch(Exception e){
-			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidErrorEvent ' not implemented --------------");
+			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onOneWaySDKDidErrorEvent ' not implemented --------------\n" + e.Message);
 		}
 	}
 
 
-	//  init
+	#if UNITY_IPHONE
+	//  Configure
 	[DllImport ("__Internal")]
-	private static extern void _OneWaySDKInit(string PId,bool debugMode);
-	public static void init(string iOSPId , string androidPId, bool debugMode)
-	{
-		#if UNITY_IPHONE
-		_OneWaySDKInit( iOSPId, debugMode);
-		#elif UNITY_ANDROID
-		_plugin.Call("init",androidPId,debugMode);
-		#endif
-	}
+	private static extern void _oneWaySDKConfigure(string PId);
 
-
-	// show
+	// RewardedAd
 	[DllImport ("__Internal")]
-	private static extern void _OneWaySDKShow();
-	public static void show()
-	{
-		#if UNITY_IPHONE
-		_OneWaySDKShow();
-		#elif UNITY_ANDROID
-		_plugin.Call("showOneWayAd");
-		#endif
+	private static extern void _oneWaySDKInitRewardedAd();
 
-	}
-
-
-	//ShowPlacementID
 	[DllImport ("__Internal")]
-	private static extern void _OneWaySDKShowPlacementID(string placementID);
-	public static void showPlacementID(string placementID)
-	{
-		#if UNITY_IPHONE
-		_OneWaySDKShowPlacementID(placementID);
-		#elif UNITY_ANDROID
-		_plugin.Call("showPlacementID",placementID);
-		#endif
+	private static extern bool _oneWaySDKRewardedAdIsReady();
 
-
-	}
-
-	//isReady
 	[DllImport ("__Internal")]
-	private static extern bool _OneWaySDKIsReady();
-	public static bool IsReady()
-	{
-		#if UNITY_IPHONE
-		return _OneWaySDKIsReady();
-		#elif UNITY_ANDROID
-		return _plugin.Call<bool>("isVideoAvailable");
-		#else
-		return false;
-		#endif
-	}
+	private static extern void _oneWaySDKShowRewardedAd(string tag);
+
+
+
+
+	//InterstitialAd
+	[DllImport ("__Internal")]
+	private static extern void _oneWaySDKInitInterstitialAd();
+
+	[DllImport ("__Internal")]
+	private static extern bool _oneWaySDKInterstitialAdIsReady();
+
+	[DllImport ("__Internal")]
+	private static extern void _oneWaySDKShowInterstitialAd(bool fullScreen, string tag);
+
+
+
+	//MetaData
+	[DllImport ("__Internal")]
+	private static extern void _debugLog(bool isDebug);
 
 	//MetaData
 	[DllImport ("__Internal")]
 	private static extern void _commitMetaData(string metaData);
+	#endif
+
+	// configure
+	public static void configure(string iOSPId , string androidPId)
+	{
+		#if UNITY_IPHONE
+		_oneWaySDKConfigure(iOSPId);
+		#elif UNITY_ANDROID
+		_plugin.Call("configure",androidPId);
+		#endif
+	}
+
+	// RewardedAd
+	public static void initRewardedAd() 
+	{
+		#if UNITY_IPHONE
+		_oneWaySDKInitRewardedAd();
+		#elif UNITY_ANDROID
+		_plugin.Call("initRewardedAd");
+		#endif
+	}
+	public static bool isRewardedAdReady()
+	{
+		#if UNITY_IPHONE
+		return _oneWaySDKRewardedAdIsReady();
+		#elif UNITY_ANDROID
+		return _plugin.Call<bool>("isRewardedAdReady");
+		#else
+		return false;
+		#endif
+	}
+	public static void showRewardedAd(string tag = "default")
+	{
+		#if UNITY_IPHONE
+		_oneWaySDKShowRewardedAd(tag);
+		#elif UNITY_ANDROID
+		_plugin.Call("showRewardedAd",tag);
+		#endif
+	}
+
+	// InterstitialAd
+	public static void initInterstitialAd()
+	{
+		#if UNITY_IPHONE
+		_oneWaySDKInitInterstitialAd();
+		#elif UNITY_ANDROID
+		_plugin.Call("initInterstitialAd");
+		#endif
+	}
+	public static bool isInterstitialAdReady()
+	{
+		#if UNITY_IPHONE
+		return _oneWaySDKInterstitialAdIsReady();
+		#elif UNITY_ANDROID
+		return _plugin.Call<bool>("isInterstitialAdReady");
+		#else
+		return false;
+		#endif
+	}
+		public static void showInterstitialAd(bool fullScreen = false, string tag = "default")
+	{
+		#if UNITY_IPHONE
+		_oneWaySDKShowInterstitialAd(fullScreen,tag);
+		#elif UNITY_ANDROID
+		_plugin.Call("showInterstitialAd",fullScreen,tag);
+		#endif
+	}
+
+
 	public static void commitMetaData(Dictionary<string,string> metaData )
 	{
 		string data = MiniJSONV.Json.Serialize(metaData);
-
 
 		#if UNITY_IPHONE
 		_commitMetaData(data);
 		#elif UNITY_ANDROID
 		_plugin.Call("commitMetaData",data);
+		#endif
+	}
+
+	public static void setDebug(bool isDebug)
+	{
+
+		#if UNITY_IPHONE
+		_debugLog(isDebug);
+		#elif UNITY_ANDROID
+		_plugin.Call("debugLog",isDebug);
 		#endif
 	}
 		

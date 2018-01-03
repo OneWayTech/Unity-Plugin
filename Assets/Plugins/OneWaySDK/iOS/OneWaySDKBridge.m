@@ -1,31 +1,60 @@
 #import "OneWaySDKBridge.h"
 
-static OneWaySDKBridge *_OneWaySDKBridgeSingleton;
+static OneWaySDKBridge *_oneWaySDKBridgeSingleton;
 
-void _OneWaySDKInit(char *pID,bool debugMode){
-    if (_OneWaySDKBridgeSingleton == nil) {
-        _OneWaySDKBridgeSingleton = [[OneWaySDKBridge alloc] init];
-    }
+//初始化
+void _oneWaySDKConfigure(char *pID){
     NSString *pIDString = [NSString stringWithUTF8String:pID];
-    
-    [OneWaySDK initialize:pIDString delegate:_OneWaySDKBridgeSingleton testMode:debugMode];
+    [OneWaySDK configure:pIDString];
 }
 
-void _OneWaySDKShowPlacementID(char *PlacementId){
-    NSString *Placement = [NSString stringWithUTF8String:PlacementId];
-    
-    if ([OneWaySDK isReady:Placement]) {
-        [OneWaySDK show:UnityGetMainWindow().rootViewController placementId:Placement];
+#pragma mark - 激励视频
+
+void _oneWaySDKInitRewardedAd(){
+    if (_oneWaySDKBridgeSingleton == nil) {
+        _oneWaySDKBridgeSingleton = [[OneWaySDKBridge alloc] init];
+    }
+    [OWRewardedAd initWithDelegate:_oneWaySDKBridgeSingleton];
+}
+void _oneWaySDKShowRewardedAd(char *tag){
+    NSString *tagString = [NSString stringWithUTF8String:tag];
+    if ([OWRewardedAd isReady]) {
+        [OWRewardedAd show:UnityGetMainWindow().rootViewController tag:tagString];
     }
 }
 
-
-void _OneWaySDKShow(void){
-    [OneWaySDK show:UnityGetMainWindow().rootViewController];
+BOOL _oneWaySDKRewardedAdIsReady(){
+    return [OWRewardedAd isReady];
 }
 
-BOOL _OneWaySDKIsReady(void){
-    return [OneWaySDK isReady];
+#pragma mark - 插屏
+void _oneWaySDKInitInterstitialAd(){
+    if (_oneWaySDKBridgeSingleton == nil) {
+        _oneWaySDKBridgeSingleton = [[OneWaySDKBridge alloc] init];
+    }
+
+    [OWInterstitialAd initWithDelegate:_oneWaySDKBridgeSingleton];
+}
+
+void _oneWaySDKShowInterstitialAd(int isFullScreen ,char *tag){
+    if ([OWInterstitialAd isReady]) {
+        NSString *tagString = [NSString stringWithUTF8String:tag];
+        [OWInterstitialAd show:UnityGetMainWindow().rootViewController fullScreen:isFullScreen tag:tagString];
+        NSLog(@"---------dddddd");
+    
+    }
+    
+    NSLog(@"---------nnnnnnnnn");
+}
+
+BOOL _oneWaySDKInterstitialAdIsReady(){
+    return [OWInterstitialAd isReady];
+}
+
+#pragma mark - other
+
+void _debugLog(int isDebug){
+    [OneWaySDK debugLog:isDebug];
 }
 
 void _commitMetaData(char *msg){
@@ -36,7 +65,7 @@ void _commitMetaData(char *msg){
     NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:data options:kNilOptions error:&err];
     
     if (err) {
-        NSLog( @"UnitySDK JSONObjectWithData : ERROR MetaData Type");
+        NSLog( @"OneWaySDK JSONObjectWithData : ERROR MetaData Type");
         return;
     }
     
@@ -50,36 +79,61 @@ void _commitMetaData(char *msg){
 
 }
 
+#pragma mark - Delegate
+@implementation OneWaySDKBridge : NSObject
 
-@implementation OneWaySDKBridge :NSObject
-
-- (void)oneWaySDKReady:(NSString *)placementId{
-    UnitySendMessage([@"OneWaySDK" UTF8String], [@"onOneWaySDKReady" UTF8String],[placementId UTF8String]);
+- (void)sendToUnity:(NSString *)method withMessage:(NSString *)message{
+    if (!message) {
+        message = @"";
+    }
+    UnitySendMessage([@"OneWaySDK" UTF8String], [method UTF8String], [message UTF8String]);
 }
 
-- (void)oneWaySDKDidStart:(NSString *)placementId{
-    UnitySendMessage([@"OneWaySDK" UTF8String], [@"onOneWaySDKDidStart" UTF8String],[placementId UTF8String]);
-}
-
-- (void)oneWaySDKDidFinish:(NSString *)placementId withFinishState:(OneWaySDKFinishState)state{
-    
-    NSDictionary *dict = @{@"placementId":placementId,@"state":[NSString stringWithFormat:@"%ld",(long)state]};
-    
+- (NSString *)dictionaryToString:(NSDictionary *)dict{
     NSError *error;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:kNilOptions error:&error];
-    NSString *jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    if (error) {
+        return nil;//@{@"error":@"9",@"message":@"OneWaySDK Error : Unity DictionaryToString Error"};
+    }
     
-    UnitySendMessage([@"OneWaySDK" UTF8String], [@"onOneWaySDKDidFinish" UTF8String],[jsonStr UTF8String]);
+    return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+}
+#pragma mark - RewardedAd Delegate
+- (void)oneWaySDKRewardedAdReady{
+    [self sendToUnity:@"onRewardedAdReady" withMessage:nil];
+}
+- (void)oneWaySDKRewardedAdDidShow:(NSString *)tag {
+    [self sendToUnity:@"onRewardedAdShow" withMessage:tag];
+}
+- (void)oneWaySDKRewardedAdDidClick:(NSString *)tag {
+    [self sendToUnity:@"onRewardedAdClick" withMessage:tag];
+}
+- (void)oneWaySDKRewardedAdDidClose:(NSString *)tag withState:(NSString *)state{
+    NSString *jsonStr = [self dictionaryToString:@{@"tag":tag,@"state":state}];
+    [self sendToUnity:@"onRewardedAdClose" withMessage:jsonStr];
 }
 
+#pragma mark - Interstitial Delegate
+- (void)oneWaySDKInterstitialAdReady{
+    [self sendToUnity:@"onInterstitialAdReady" withMessage:nil];
+}
+- (void)oneWaySDKInterstitialAdDidShow:(NSString *)tag {
+    [self sendToUnity:@"onInterstitialAdDidShow" withMessage:tag];
+}
+- (void)oneWaySDKInterstitialAdDidClick:(NSString *)tag {
+    [self sendToUnity:@"onInterstitialAdDidClick" withMessage:tag];
+}
+- (void)oneWaySDKInterstitialAdDidClose:(NSString *)tag withState:(NSString *)state {
+    NSString *jsonStr = [self dictionaryToString:@{@"tag":tag,@"state":state}];
+    [self sendToUnity:@"onInterstitialAdDidClose" withMessage:jsonStr];
+}
+
+#pragma mark - Total Error Delegate
 - (void)oneWaySDKDidError:(OneWaySDKError)error withMessage:(NSString *)message{
     
-    NSDictionary *dict = @{@"error":[NSString stringWithFormat:@"%ld",(long)error],@"message":message};
+    NSString *jsonStr = [self dictionaryToString:@{@"error":[NSString stringWithFormat:@"%ld",(long)error],@"message":message}];
+    [self sendToUnity:@"onOneWaySDKDidError" withMessage:jsonStr];
     
-    NSError *err;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict options:kNilOptions error:&err];
-    NSString *jsonStr =[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    UnitySendMessage([@"OneWaySDK" UTF8String], [@"onOneWaySDKDidError" UTF8String],[jsonStr UTF8String]);
 }
 
 
