@@ -24,7 +24,7 @@ public class mainUI : MonoBehaviour {
 		
 			OneWaySDK.commitMetaData (metaData);
 			OneWaySDK.setDebug(true);
-			OneWaySDK.configure("po4wvdsaaaygsc7t", "7ki7x0p42uah3qh1");
+			OneWaySDK.configure("cx2caqymw6dwncq5", "gkbqk8vi3i6sa2yp");
 
 		});
 
@@ -95,7 +95,7 @@ public class mainUI : MonoBehaviour {
 
 			interstitial.enabled = true;
 			interstitial.GetComponent<Image>().color = new Color(0.007F, 0.6F, 0.917F);
-			GameObject.Find("Canvas/interstitial/Text").GetComponent<Text>().text = "Show InitRewarded Ad";
+			GameObject.Find("Canvas/interstitial/Text").GetComponent<Text>().text = "Show InterstitialAd Ad";
 		};
 
 		OneWaySDK.onInterstitialAdShowEvent += ( tag ) =>{
@@ -108,6 +108,44 @@ public class mainUI : MonoBehaviour {
 
 		OneWaySDK.onInterstitialAdCloseEvent += ( tag ,state) =>{
 			Debug.Log ("OneWaySDK InterstitialAd Close for tag: " + tag +" state is: " + state);
+		};
+
+
+		Button interstitialImage = GameObject.Find("Canvas/interstitialImage").GetComponent<Button>();
+
+		interstitialImage.onClick.AddListener(delegate() {
+
+			interstitialImage.enabled = false;
+			interstitialImage.GetComponent<Image>().color = Color.gray;
+			GameObject.Find("Canvas/interstitialImage/Text").GetComponent<Text>().text = "Please Wait";
+
+			if(OneWaySDK.isInterstitialImageAdReady()){
+				OneWaySDK.showInterstitialImageAd();
+			}else{
+				OneWaySDK.initInterstitialImageAd();
+			}
+
+		});
+
+		//InterstitialImageAd Event
+		OneWaySDK.onInterstitialImageAdReadyEvent += () =>{
+			Debug.Log ("OneWaySDK InterstitialImageAd Ready ");
+
+			interstitialImage.enabled = true;
+			interstitialImage.GetComponent<Image>().color = new Color(0.007F, 0.6F, 0.917F);
+			GameObject.Find("Canvas/interstitialImage/Text").GetComponent<Text>().text = "Show interstitialImage Ad";
+		};
+
+		OneWaySDK.onInterstitialImageAdShowEvent += ( tag ) =>{
+			Debug.Log ("OneWaySDK InterstitialImageAd Show for tag: " + tag);
+		};
+
+		OneWaySDK.onInterstitialImageAdClickEvent += ( tag ) =>{
+			Debug.Log ("OneWaySDK InterstitialImageAd Click for tag: " + tag);
+		};
+
+		OneWaySDK.onInterstitialImageAdCloseEvent += ( tag ,state) =>{
+			Debug.Log ("OneWaySDK InterstitialImageAd Close for tag: " + tag +" state is: " + state);
 		};
 
 

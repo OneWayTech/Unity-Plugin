@@ -135,6 +135,12 @@ public class OneWaySDK : MonoBehaviour
 	public static event Action <string> onInterstitialAdClickEvent;
 	public static event Action <string,string> onInterstitialAdCloseEvent;
 
+	//InterstitialImageAd
+	public static event Action onInterstitialImageAdReadyEvent;
+	public static event Action <string> onInterstitialImageAdShowEvent;
+	public static event Action <string> onInterstitialImageAdClickEvent;
+	public static event Action <string,string> onInterstitialImageAdCloseEvent;
+
 	//error
 	public static event Action <string,string> onOneWaySDKDidErrorEvent;
 
@@ -212,6 +218,41 @@ public class OneWaySDK : MonoBehaviour
 		}
 	}
 
+	//InterstitialImageAd
+	//Ready
+	void onInterstitialImageAdReady () {
+		try{
+			onInterstitialImageAdReadyEvent();
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onInterstitialImageAdReadyEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//Show
+	void onInterstitialImageAdShow (string tag) {
+		try{
+			onInterstitialImageAdShowEvent(tag);
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onInterstitialImageAdShowEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//Click
+	void onInterstitialImageAdClick (string tag) {
+		try{
+			onInterstitialImageAdClickEvent(tag);
+		}catch(Exception e){
+			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onInterstitialImageAdClickEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+	//close
+	void onInterstitialImageAdClose (string info) {
+		Dictionary<string,object> attrs = (Dictionary<string,object>)MiniJSONV.Json.Deserialize (info);
+		try {
+			onInterstitialImageAdCloseEvent (attrs["tag"].ToString (), attrs ["state"].ToString ());
+		} catch (Exception e) {
+			Debug.LogWarning ("-------------- OneWaySDK Warning : Method 'onInterstitialImageAdCloseEvent' not implemented --------------\n" + e.Message);
+		}
+	}
+
 
 	//Error 
 	void onOneWaySDKDidError (string msg) {
@@ -252,7 +293,20 @@ public class OneWaySDK : MonoBehaviour
 	private static extern bool _oneWaySDKInterstitialAdIsReady();
 
 	[DllImport ("__Internal")]
-	private static extern void _oneWaySDKShowInterstitialAd(bool fullScreen, string tag);
+	private static extern void _oneWaySDKShowInterstitialAd(string tag);
+
+
+
+
+	//InterstitialImageAd
+	[DllImport ("__Internal")]
+	private static extern void _oneWaySDKInitInterstitialImageAd();
+
+	[DllImport ("__Internal")]
+	private static extern bool _oneWaySDKInterstitialImageAdIsReady();
+
+	[DllImport ("__Internal")]
+	private static extern void _oneWaySDKShowInterstitialImageAd(string tag);
 
 
 
@@ -303,17 +357,17 @@ public class OneWaySDK : MonoBehaviour
 		#endif
 	}
 
-	// InterstitialAd
-	public static void initInterstitialAd()
-	{
+		// InterstitialAd
+		public static void initInterstitialAd()
+		{
 		#if UNITY_IPHONE
 		_oneWaySDKInitInterstitialAd();
 		#elif UNITY_ANDROID
 		_plugin.Call("initInterstitialAd");
 		#endif
-	}
-	public static bool isInterstitialAdReady()
-	{
+		}
+		public static bool isInterstitialAdReady()
+		{
 		#if UNITY_IPHONE
 		return _oneWaySDKInterstitialAdIsReady();
 		#elif UNITY_ANDROID
@@ -321,15 +375,43 @@ public class OneWaySDK : MonoBehaviour
 		#else
 		return false;
 		#endif
-	}
-		public static void showInterstitialAd(bool fullScreen = false, string tag = "default")
-	{
+		}
+		public static void showInterstitialAd(string tag = "default")
+		{
 		#if UNITY_IPHONE
-		_oneWaySDKShowInterstitialAd(fullScreen,tag);
+		_oneWaySDKShowInterstitialAd(tag);
 		#elif UNITY_ANDROID
-		_plugin.Call("showInterstitialAd",fullScreen,tag);
+		_plugin.Call("showInterstitialAd",tag);
 		#endif
-	}
+		}
+
+		// InterstitialImageAd
+		public static void initInterstitialImageAd()
+		{
+		#if UNITY_IPHONE
+		_oneWaySDKInitInterstitialImageAd();
+		#elif UNITY_ANDROID
+		_plugin.Call("initInterstitialImageAd");
+		#endif
+		}
+		public static bool isInterstitialImageAdReady()
+		{
+		#if UNITY_IPHONE
+		return _oneWaySDKInterstitialImageAdIsReady();
+		#elif UNITY_ANDROID
+		return _plugin.Call<bool>("isInterstitialImageAdReady");
+		#else
+		return false;
+		#endif
+		}
+		public static void showInterstitialImageAd(string tag = "default")
+		{
+		#if UNITY_IPHONE
+		_oneWaySDKShowInterstitialImageAd(tag);
+		#elif UNITY_ANDROID
+		_plugin.Call("showInterstitialImageAd",tag);
+		#endif
+		}
 
 
 	public static void commitMetaData(Dictionary<string,string> metaData )
