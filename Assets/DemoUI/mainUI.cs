@@ -24,7 +24,7 @@ public class mainUI : MonoBehaviour {
 		
 			OneWaySDK.commitMetaData (metaData);
 			OneWaySDK.setDebug(true);
-			OneWaySDK.configure("cx2caqymw6dwncq5", "gkbqk8vi3i6sa2yp");
+			OneWaySDK.configure("po4wvdsaaaygsc7t", "7ki7x0p42uah3qh1");
 
 		});
 
