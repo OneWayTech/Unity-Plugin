@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Runtime.InteropServices;
 using System;
@@ -128,6 +128,7 @@ public class OneWaySDK : MonoBehaviour
 	public static event Action <string> onRewardedAdShowEvent;
 	public static event Action <string> onRewardedAdClickEvent;
 	public static event Action <string,string> onRewardedAdCloseEvent;
+    public static event Action <string,string,string> onRewardedAdFinishEvent;
 
 	//InterstitialAd
 	public static event Action onInterstitialAdReadyEvent;
@@ -180,6 +181,16 @@ public class OneWaySDK : MonoBehaviour
 			Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onRewardedAdCloseEvent' not implemented --------------\n" + e.Message);
 		}
 	}
+
+    //finish
+        void onRewardedAdFinish (string info) {
+        Dictionary<string,object> attrs = (Dictionary<string,object>) MiniJSONV.Json.Deserialize(info);
+        try{
+        onRewardedAdFinishEvent(attrs["tag"].ToString(),attrs["state"].ToString(),attrs["sessionId"].ToString());
+        }catch(Exception e){
+        Debug.LogWarning("-------------- OneWaySDK Warning : Method 'onRewardedAdFinishEvent' not implemented --------------\n" + e.Message);
+        }
+    }
 
 
 

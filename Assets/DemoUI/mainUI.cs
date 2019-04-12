@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -68,6 +68,10 @@ public class mainUI : MonoBehaviour {
 
 		OneWaySDK.onRewardedAdCloseEvent += ( tag ,state) =>{
 			Debug.Log ("OneWaySDK RewardedAd Close for tag: " + tag +" state is: " + state);
+		};
+
+		OneWaySDK.onRewardedAdFinishEvent += ( tag ,state, sessionId) =>{
+			Debug.Log ("OneWaySDK RewardedAd Finish for tag: " + tag +" state is: " + state +" sessionId is: " + sessionId);
 		};
 
 

@@ -129,6 +129,10 @@ void _commitMetaData(char *msg){
     NSString *jsonStr = [self dictionaryToString:@{@"tag":tag,@"state":state}];
     [self sendToUnity:@"onRewardedAdClose" withMessage:jsonStr];
 }
+- (void)oneWaySDKRewardedAdDidFinish:(NSString *)tag state:(NSNumber *)state sessionId:(NSString *)sessionId{
+    NSString *jsonStr = [self dictionaryToString:@{@"tag":tag,@"state":state,@"sessionId":sessionId}];
+    [self sendToUnity:@"onRewardedAdFinish" withMessage:jsonStr];
+}
 
 #pragma mark - Interstitial Delegate
 - (void)oneWaySDKInterstitialAdReady{
